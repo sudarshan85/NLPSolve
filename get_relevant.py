@@ -11,9 +11,9 @@ def extract_data(data):
     return x
 
 def main():
-    full_data = pd.read_csv('disaster_tweets.csv', encoding='ISO-8859-1')
+    full_data = pd.read_csv('disaster-tweets.csv', encoding='ISO-8859-1')
     extracted_data = extract_data(full_data)
-    extracted_data.to_pickle('cleaned_df.pkl')
+    extracted_data.to_pickle('cleaned-df.pkl')
 
 if __name__=='__main__':
     main()
