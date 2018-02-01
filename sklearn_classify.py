@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import gensim
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -9,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from plot_functions import *
 
 
-def vectorize_data(train_data, test_data, vectorizer):
+def sklearn_vectorize(train_data, test_data, vectorizer):
     train = vectorizer.fit_transform(train_data)
     test = vectorizer.transform(test_data)
 
@@ -55,35 +56,49 @@ def get_relevant_features(vectorizer, model, n=5):
 
     return top_scores, top_words, bottom_scores, bottom_words
 
-def plot_all(X_train, y_train, cm, vectorizer, clf, n_features=10):
+def plot_results(cm, vectorizer, clf, n_features=10):
 
     top_scores, top_words, bottom_scores, bottom_words = get_relevant_features(vectorizer, clf, n=n_features)
 
-    plot_LSA(X_train, y_train)
     plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
     plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
+
+def gensim_w2v():
+    pass
+    # for i, text in enumerate(list_corpus):
+    #     list_corpus[i] = [tokens for tokens in gensim.utils.tokenize(text)]
+    # return [tokens for tokens in gensim.utils.tokenize(text)]
+    # word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
+    # word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
+
 
 
 def main():
     questions = pd.read_pickle('ready_data.pkl')
 
-    list_corpus = questions['text'].tolist()
-    list_labels = questions['class_label'].tolist()
-    X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
+    questions['tokens'] = questions['text'].apply(lambda x: [tokens for tokens in gensim.utils.tokenize(x)])
+    print(questions.head())
+    print(questions.tail())
+    # list_corpus = questions['text'].tolist()
+    # list_labels = questions['class_label'].tolist()
+    # X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
+    # gensim_w2v(list_corpus, list_labels)
     # X_train, X_test, vectorizer = vectorize_data(X_train_raw, X_test_raw, CountVectorizer())
-    X_train, X_test, vectorizer = vectorize_data(X_train_raw, X_test_raw, TfidfVectorizer())
-
-    clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg',
-                             multi_class='multinomial', n_jobs=-1, random_state=40)
-    clf.fit(X_train, y_train)
-    y_predicted_counts = clf.predict(X_test)
-
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
-    cm = confusion_matrix(y_test, y_predicted_counts)
-
-    plot_all(X_train, y_train, cm, vectorizer, clf, n_features=10)
-    print(cm)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    # X_train, X_test, vectorizer = sklearn_vectorize(X_train_raw, X_test_raw, TfidfVectorizer())
+    #
+    # plot_LSA(X_train, y_train)
+    #
+    # clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg',
+    #                          multi_class='multinomial', n_jobs=-1, random_state=40)
+    # clf.fit(X_train, y_train)
+    # y_predicted_counts = clf.predict(X_test)
+    #
+    # accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
+    # cm = confusion_matrix(y_test, y_predicted_counts)
+    #
+    # plot_results(X_train, y_train, cm, vectorizer, clf, n_features=10)
+    # print(cm)
+    # print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
 
 if __name__ == '__main__':
