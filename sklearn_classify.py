@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -9,11 +9,11 @@ from sklearn.model_selection import train_test_split
 from plot_functions import *
 
 
-def cv(data):
-    count_vec = CountVectorizer()
-    emb = count_vec.fit_transform(data)
+def vectorize_data(train_data, test_data, vectorizer):
+    train = vectorizer.fit_transform(train_data)
+    test = vectorizer.transform(test_data)
 
-    return emb, count_vec
+    return train, test, vectorizer
 
 
 def get_metrics(y_test, y_predicted):
@@ -33,7 +33,7 @@ def get_metrics(y_test, y_predicted):
     return accuracy, precision, recall, f1
 
 
-def get_most_important_features(vectorizer, model, n=5):
+def get_relevant_features(vectorizer, model, n=5):
     index_to_word = {v: k for k, v in vectorizer.vocabulary_.items()}
 
     # loop for each class
@@ -47,38 +47,39 @@ def get_most_important_features(vectorizer, model, n=5):
             'tops': tops,
             'bottom': bottom
         }
-    return classes
 
+    top_scores = [a[0] for a in classes[1]['tops']]
+    top_words = [a[1] for a in classes[1]['tops']]
+    bottom_scores = [a[0] for a in classes[1]['bottom']]
+    bottom_words = [a[1] for a in classes[1]['bottom']]
+
+    return top_scores, top_words, bottom_scores, bottom_words
 
 def main():
     questions = pd.read_pickle('ready_data.pkl')
 
     list_corpus = questions['text'].tolist()
     list_labels = questions['class_label'].tolist()
-    X_train, X_test, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
-    X_train_counts, count_vec = cv(X_train)
-    X_test_counts = count_vec.transform(X_test)
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
+    # X_train, X_test, vectorizer = vectorize_data(X_train_raw, X_test_raw, CountVectorizer())
+    X_train, X_test, vectorizer = vectorize_data(X_train_raw, X_test_raw, TfidfVectorizer())
 
     clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg',
                              multi_class='multinomial', n_jobs=-1, random_state=40)
-    clf.fit(X_train_counts, y_train)
-    y_predicted_counts = clf.predict(X_test_counts)
+    clf.fit(X_train, y_train)
+    y_predicted_counts = clf.predict(X_test)
 
     accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
     cm = confusion_matrix(y_test, y_predicted_counts)
 
-    importance = get_most_important_features(count_vec, clf, 10)
-    top_scores = [a[0] for a in importance[1]['tops']]
-    top_words = [a[1] for a in importance[1]['tops']]
-    bottom_scores = [a[0] for a in importance[1]['bottom']]
-    bottom_words = [a[1] for a in importance[1]['bottom']]
+    top_scores, top_words, bottom_scores, bottom_words = get_relevant_features(vectorizer, clf, 10)
 
+    plot_LSA(X_train, y_train)
+    plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
     plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
 
-    # plot_LSA(X_train_counts, y_train)
-    # plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
-    # print(cm)
-    # print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    print(cm)
+    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
 
 if __name__ == '__main__':
