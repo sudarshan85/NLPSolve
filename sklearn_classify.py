@@ -55,6 +55,15 @@ def get_relevant_features(vectorizer, model, n=5):
 
     return top_scores, top_words, bottom_scores, bottom_words
 
+def plot_all(X_train, y_train, cm, vectorizer, clf, n_features=10):
+
+    top_scores, top_words, bottom_scores, bottom_words = get_relevant_features(vectorizer, clf, n=n_features)
+
+    plot_LSA(X_train, y_train)
+    plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
+    plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
+
+
 def main():
     questions = pd.read_pickle('ready_data.pkl')
 
@@ -72,12 +81,7 @@ def main():
     accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
     cm = confusion_matrix(y_test, y_predicted_counts)
 
-    top_scores, top_words, bottom_scores, bottom_words = get_relevant_features(vectorizer, clf, 10)
-
-    plot_LSA(X_train, y_train)
-    plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
-    plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
-
+    plot_all(X_train, y_train, cm, vectorizer, clf, n_features=10)
     print(cm)
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
