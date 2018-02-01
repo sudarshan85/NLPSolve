@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import numpy as np
 import itertools
 
-from sklearn.decomposition import TruncatedSVD
-
-import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+
 
 def plot_LSA(test_data, test_labels, plot=True):
     plt.figure(figsize=(16, 16))
@@ -52,6 +52,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label', fontsize=30)
     plt.xlabel('Predicted label', fontsize=30)
     plt.show()
+
 
 def plot_important_words(top_scores, top_words, bottom_scores, bottom_words, name):
     y_pos = np.arange(len(top_words))

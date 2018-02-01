@@ -4,15 +4,18 @@ This cleans the tweets and writes the dataframe into a pickle
 file for use later
 """
 
-import pandas as pd
 import codecs
 from io import StringIO
+
+import pandas as pd
 import spacy
 
 nlp = spacy.load('en')
 
+
 def tokenizer(text):
     return [token.text for token in nlp.tokenizer(text)]
+
 
 def get_df(fname):
     """
@@ -54,11 +57,13 @@ def standardize_text(df, text_field):
     df[text_field] = df[text_field].str.lower()
     return df
 
+
 def main():
     questions = get_df('socialmedia_relevant_cols.csv')
     questions = standardize_text(questions, 'text')
     questions['tokens'] = questions['text'].apply(tokenizer)
     questions.to_pickle('ready_data.pkl')
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()

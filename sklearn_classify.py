@@ -1,21 +1,19 @@
 #!/usr/bin/env python
 
 import pandas as pd
-
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
+from sklearn.model_selection import train_test_split
 
 from plot_functions import *
+
 
 def cv(data):
     count_vec = CountVectorizer()
     emb = count_vec.fit_transform(data)
 
     return emb, count_vec
-
-
 
 
 def get_metrics(y_test, y_predicted):
@@ -51,6 +49,7 @@ def get_most_important_features(vectorizer, model, n=5):
         }
     return classes
 
+
 def main():
     questions = pd.read_pickle('ready_data.pkl')
 
@@ -60,8 +59,6 @@ def main():
     X_train_counts, count_vec = cv(X_train)
     X_test_counts = count_vec.transform(X_test)
 
-    # plot_LSA(X_train_counts, y_train)
-
     clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg',
                              multi_class='multinomial', n_jobs=-1, random_state=40)
     clf.fit(X_train_counts, y_train)
@@ -70,9 +67,19 @@ def main():
     accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
     cm = confusion_matrix(y_test, y_predicted_counts)
 
-    plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
-    print(cm)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    importance = get_most_important_features(count_vec, clf, 10)
+    top_scores = [a[0] for a in importance[1]['tops']]
+    top_words = [a[1] for a in importance[1]['tops']]
+    bottom_scores = [a[0] for a in importance[1]['bottom']]
+    bottom_words = [a[1] for a in importance[1]['bottom']]
+
+    plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
+
+    # plot_LSA(X_train_counts, y_train)
+    # plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
+    # print(cm)
+    # print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
 
 if __name__ == '__main__':
     main()
