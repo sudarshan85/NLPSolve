@@ -12,8 +12,7 @@ import spacy
 nlp = spacy.load('en')
 
 def tokenizer(text):
-    return [tok.text for tok in nlp.tokenizer(text)]
-
+    return [token.text for token in nlp.tokenizer(text)]
 
 def get_df(fname):
     """
