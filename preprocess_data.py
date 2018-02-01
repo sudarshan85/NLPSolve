@@ -8,14 +8,6 @@ import codecs
 from io import StringIO
 
 import pandas as pd
-import spacy
-
-nlp = spacy.load('en')
-
-
-def tokenizer(text):
-    return [token.text for token in nlp.tokenizer(text)]
-
 
 def get_df(fname):
     """
@@ -61,7 +53,6 @@ def standardize_text(df, text_field):
 def main():
     questions = get_df('socialmedia_relevant_cols.csv')
     questions = standardize_text(questions, 'text')
-    questions['tokens'] = questions['text'].apply(tokenizer)
     questions.to_pickle('ready_data.pkl')
 
 
