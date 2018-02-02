@@ -26,8 +26,12 @@ def get_average_word2vec(tokens_list, vector, generate_missing=False, k=300):
 
 
 def get_word2vec_embeddings(list_corpus):
-    word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
-    word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
+    # word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
+    # word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
+
+    # for faster loading
+    word2vec_path = '/mnt/Data/DL_datasets/word-vectors/gensim-saved/GoogleNews-vectors-negative300.bin'
+    word2vec = gensim.models.KeyedVectors.load(word2vec_path, mmap='r')
     for i, text in enumerate(list_corpus):
         list_corpus[i] = [tokens for tokens in gensim.utils.tokenize(text)]
 
