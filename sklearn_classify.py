@@ -71,16 +71,42 @@ def gensim_w2v():
     # word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
     # word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
 
+def get_average_word2vec(tokens_list, vector, generate_missing=False, k=300):
+    if len(tokens_list)<1:
+        return np.zeros(k)
+    if generate_missing:
+        vectorized = [vector[word] if word in vector else np.random.rand(k) for word in tokens_list]
+    else:
+        vectorized = [vector[word] if word in vector else np.zeros(k) for word in tokens_list]
+    length = len(vectorized)
+    summed = np.sum(vectorized, axis=0)
+    averaged = np.divide(summed, length)
+    return averaged
 
+def get_word2vec_embeddings(list_corpus, generate_missing=False):
+    word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
+    word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
+    for i, text in enumerate(list_corpus):
+        list_corpus[i] = [tokens for tokens in gensim.utils.tokenize(text)]
+
+    embeddings = []
+    for text in list_corpus:
+        embeddings.append(get_average_word2vec(text, word2vec))
+
+    return list(embeddings)
 
 def main():
     questions = pd.read_pickle('ready_data.pkl')
-
-    questions['tokens'] = questions['text'].apply(lambda x: [tokens for tokens in gensim.utils.tokenize(x)])
-    print(questions.head())
-    print(questions.tail())
-    # list_corpus = questions['text'].tolist()
-    # list_labels = questions['class_label'].tolist()
+    list_corpus = questions['text'].tolist()
+    list_labels = questions['class_label'].tolist()
+    # word2vec = None
+    #
+    #
+    #
+    # questions['tokens'] = questions['text'].apply(lambda x: [tokens for tokens in gensim.utils.tokenize(x)])
+    embeddings = get_word2vec_embeddings(list_corpus)
+    # print(questions.head())
+    # print(questions.tail())
     # X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
     # gensim_w2v(list_corpus, list_labels)
     # X_train, X_test, vectorizer = vectorize_data(X_train_raw, X_test_raw, CountVectorizer())
