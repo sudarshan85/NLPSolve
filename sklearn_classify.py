@@ -6,8 +6,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from plot_functions import plot_important_words, plot_LSA, plot_confusion_matrix
 from get_metrics import get_metrics
+from plot_functions import plot_important_words, plot_LSA, plot_confusion_matrix
 
 
 def sklearn_vectorize(train_data, test_data, vectorizer):
@@ -15,6 +15,7 @@ def sklearn_vectorize(train_data, test_data, vectorizer):
     test = vectorizer.transform(test_data)
 
     return train, test, vectorizer
+
 
 def get_relevant_features(vectorizer, model, n=5):
     index_to_word = {v: k for k, v in vectorizer.vocabulary_.items()}
@@ -38,6 +39,7 @@ def get_relevant_features(vectorizer, model, n=5):
 
     return top_scores, top_words, bottom_scores, bottom_words
 
+
 def classify(X_train, X_test, y_train, y_test, vectorizer):
     clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg',
                              multi_class='multinomial', n_jobs=-1, random_state=40)
@@ -54,24 +56,29 @@ def classify(X_train, X_test, y_train, y_test, vectorizer):
     print(cm)
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
+
 def cv_classify(X_train_raw, X_test_raw, y_train, y_test):
     X_train, X_test, vectorizer = sklearn_vectorize(X_train_raw, X_test_raw, CountVectorizer())
     plot_LSA(X_train, y_train)
     classify(X_train, X_test, y_train, y_test, vectorizer)
+
 
 def tfidf_classify(X_train_raw, X_test_raw, y_train, y_test):
     X_train, X_test, vectorizer = sklearn_vectorize(X_train_raw, X_test_raw, TfidfVectorizer())
     plot_LSA(X_train, y_train)
     classify(X_train, X_test, y_train, y_test, vectorizer)
 
+
 def main():
     questions = pd.read_pickle('ready_data.pkl')
     list_corpus = questions['text'].tolist()
     list_labels = questions['class_label'].tolist()
-    X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(list_corpus, list_labels, test_size=0.2,
+                                                                random_state=40)
 
     cv_classify(X_train_raw, X_test_raw, y_train, y_test)
     tfidf_classify(X_train_raw, X_test_raw, y_train, y_test)
+
 
 if __name__ == '__main__':
     main()

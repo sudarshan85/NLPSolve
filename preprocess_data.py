@@ -9,6 +9,7 @@ from io import StringIO
 
 import pandas as pd
 
+
 def get_df(fname):
     """
     Function to read in the non-UTF8 encoded file into a StringIO buffer

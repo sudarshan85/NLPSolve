@@ -1,21 +1,18 @@
 #!/usr/bin/env python
 
 import gensim
-import pandas as pd
 import numpy as np
-
-from sklearn.model_selection import train_test_split
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
 
-from plot_functions import plot_LSA, plot_confusion_matrix
 from get_metrics import get_metrics
+from plot_functions import plot_LSA, plot_confusion_matrix
 
-def gensim_w2v():
-    pass
 
 def get_average_word2vec(tokens_list, vector, generate_missing=False, k=300):
-    if len(tokens_list)<1:
+    if len(tokens_list) < 1:
         return np.zeros(k)
     if generate_missing:
         vectorized = [vector[word] if word in vector else np.random.rand(k) for word in tokens_list]
@@ -26,6 +23,7 @@ def get_average_word2vec(tokens_list, vector, generate_missing=False, k=300):
     averaged = np.divide(summed, length)
 
     return averaged
+
 
 def get_word2vec_embeddings(list_corpus):
     word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
@@ -38,6 +36,7 @@ def get_word2vec_embeddings(list_corpus):
         embeddings.append(get_average_word2vec(text, word2vec))
 
     return embeddings
+
 
 def main():
     questions = pd.read_pickle('ready_data.pkl')
@@ -59,7 +58,6 @@ def main():
 
     print(cm)
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
-
 
 
 if __name__ == '__main__':

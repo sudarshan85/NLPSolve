@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+
 
 def get_metrics(y_test, y_predicted):
     # true positives / (true positives+false positives)
