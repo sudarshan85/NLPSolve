@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import gensim
-import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
@@ -9,38 +7,7 @@ from sklearn.model_selection import train_test_split
 
 from get_metrics import get_metrics
 from plot_functions import plot_LSA, plot_confusion_matrix
-
-
-def get_average_word2vec(tokens_list, vector, generate_missing=False, k=300):
-    if len(tokens_list) < 1:
-        return np.zeros(k)
-    if generate_missing:
-        vectorized = [vector[word] if word in vector else np.random.rand(k) for word in tokens_list]
-    else:
-        vectorized = [vector[word] if word in vector else np.zeros(k) for word in tokens_list]
-    length = len(vectorized)
-    summed = np.sum(vectorized, axis=0)
-    averaged = np.divide(summed, length)
-
-    return averaged
-
-
-def get_word2vec_embeddings(list_corpus):
-    # word2vec_path = '/mnt/Data/DL_datasets/word-vectors/GoogleNews-vectors-negative300.bin.gz'
-    # word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
-
-    # for faster loading
-    word2vec_path = '/mnt/Data/DL_datasets/word-vectors/gensim-saved/GoogleNews-vectors-negative300.bin'
-    word2vec = gensim.models.KeyedVectors.load(word2vec_path, mmap='r')
-    for i, text in enumerate(list_corpus):
-        list_corpus[i] = [tokens for tokens in gensim.utils.tokenize(text)]
-
-    embeddings = []
-    for text in list_corpus:
-        embeddings.append(get_average_word2vec(text, word2vec))
-
-    return embeddings
-
+from get_word2vec import get_word2vec_embeddings
 
 def main():
     questions = pd.read_pickle('ready_data.pkl')
