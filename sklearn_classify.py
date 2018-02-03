@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from get_metrics import get_metrics
+from get_stats import get_metrics
 from plot_functions import plot_important_words, plot_LSA, plot_confusion_matrix
 
 
