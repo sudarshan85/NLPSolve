@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import random
-import pandas as pd
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
+import pandas as pd
 from lime.lime_text import LimeTextExplainer
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 

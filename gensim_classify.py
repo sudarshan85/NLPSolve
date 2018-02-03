@@ -37,11 +37,14 @@ def word2vec_pipeline(examples):
 
     return clf.predict_proba(tokenized_list)
 
-def wrapper_plot_words(clf, list_corpus, list_labels):
+
+def plot_important_words_with_lime():
     label_to_text = {0: 'Irrelevant', 1: 'Relevant', 2: 'Unsure'}
-    X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(list_corpus, list_labels, test_size=0.2, random_state=40)
+    X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(list_corpus, list_labels, test_size=0.2,
+                                                                            random_state=40)
 
     sorted_contributions = get_statistical_explanation(clf, X_test_data, 10, word2vec_pipeline, label_to_text)
+
     # First index is the class (Disaster)
     # Second index is 0 for detractors, 1 for supporters
     # Third is how many words we sample
@@ -53,7 +56,7 @@ def wrapper_plot_words(clf, list_corpus, list_labels):
     plot_important_words(top_scores, top_words, bottom_scores, bottom_words, "Most important words for relevance")
 
 
-def main():
+if __name__ == '__main__':
     questions = pd.read_pickle('ready_data.pkl')
     list_corpus = questions['text'].tolist()
     list_labels = questions['class_label'].tolist()
@@ -61,21 +64,18 @@ def main():
     tokenized_corpus = [[tokens for tokens in gensim.utils.tokenize(text)] for text in list_corpus]
     embeddings = [get_average_word2vec(tokens) for tokens in tokenized_corpus]
     X_train, X_test, y_train, y_test = train_test_split(embeddings, list_labels, test_size=0.2, random_state=40)
-    # plot_LSA(X_train, y_train)
-    global clf
-    clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg', multi_class='multinomial', n_jobs=-1, random_state=40)
+    plot_LSA(X_train, y_train)
+
+    clf = LogisticRegression(C=30.0, class_weight='balanced', solver='newton-cg', multi_class='multinomial', n_jobs=-1,
+                             random_state=40)
     clf.fit(X_train, y_train)
     y_predicted_counts = clf.predict(X_test)
 
-    # accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
-    # cm = confusion_matrix(y_test, y_predicted_counts)
-    #
-    # plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
-    wrapper_plot_words(clf, list_corpus, list_labels)
+    accuracy, precision, recall, f1 = get_metrics(y_test, y_predicted_counts)
+    cm = confusion_matrix(y_test, y_predicted_counts)
 
-    # print(cm)
-    # print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
+    plot_important_words_with_lime(clf, list_corpus, list_labels)
 
-
-if __name__ == '__main__':
-    main()
+    print(cm)
+    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
