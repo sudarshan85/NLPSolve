@@ -14,8 +14,6 @@ def plot_LSA(test_data, test_labels, plot=True):
     lsa = TruncatedSVD(n_components=2)
     lsa.fit(test_data)
     lsa_scores = lsa.transform(test_data)
-    # color_mapper = {label: idx for idx, label in enumerate(set(test_labels))}
-    # color_column = [color_mapper[label] for label in test_labels]
     colors = ['orange', 'blue', 'blue']
     if plot:
         plt.scatter(lsa_scores[:, 0], lsa_scores[:, 1], s=8, alpha=.8, c=test_labels,

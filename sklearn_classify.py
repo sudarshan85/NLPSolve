@@ -69,7 +69,7 @@ def tfidf_classify(X_train_raw, X_test_raw, y_train, y_test):
     classify(X_train, X_test, y_train, y_test, vectorizer)
 
 
-def main():
+if __name__ == '__main__':
     questions = pd.read_pickle('ready_data.pkl')
     list_corpus = questions['text'].tolist()
     list_labels = questions['class_label'].tolist()
@@ -78,7 +78,3 @@ def main():
 
     cv_classify(X_train_raw, X_test_raw, y_train, y_test)
     tfidf_classify(X_train_raw, X_test_raw, y_train, y_test)
-
-
-if __name__ == '__main__':
-    main()

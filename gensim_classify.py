@@ -7,8 +7,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from get_stats import get_metrics, get_statistical_explanation
-from plot_functions import plot_LSA, plot_confusion_matrix, plot_important_words
+from get_stats import get_statistical_explanation, get_metrics
+from plot_functions import plot_important_words, plot_confusion_matrix, plot_LSA
 
 word2vec_path = '/mnt/Data/DL_datasets/word-vectors/gensim-saved/GoogleNews-vectors-negative300.bin'
 word2vec = gensim.models.KeyedVectors.load(word2vec_path, mmap='r')
@@ -42,8 +42,9 @@ def plot_important_words_with_lime():
     label_to_text = {0: 'Irrelevant', 1: 'Relevant', 2: 'Unsure'}
     X_train_data, X_test_data, y_train_data, y_test_data = train_test_split(list_corpus, list_labels, test_size=0.2,
                                                                             random_state=40)
-
-    sorted_contributions = get_statistical_explanation(clf, X_test_data, 10, word2vec_pipeline, label_to_text)
+    sorted_contributions = get_statistical_explanation(X_test_data, sample_size=100,
+                                                       word2vec_pipeline=word2vec_pipeline,
+                                                       label_dict=label_to_text)
 
     # First index is the class (Disaster)
     # Second index is 0 for detractors, 1 for supporters
@@ -75,7 +76,7 @@ if __name__ == '__main__':
     cm = confusion_matrix(y_test, y_predicted_counts)
 
     plot_confusion_matrix(cm, classes=['Irrelevant', 'Disaster', 'Unsure'], normalize=False, title='Confusion matrix')
-    plot_important_words_with_lime(clf, list_corpus, list_labels)
+    plot_important_words_with_lime()
 
     print(cm)
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))

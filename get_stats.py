@@ -28,7 +28,7 @@ def get_metrics(y_test, y_predicted):
     return accuracy, precision, recall, f1
 
 
-def get_statistical_explanation(clf, test_set, sample_size, word2vec_pipeline, label_dict):
+def get_statistical_explanation(test_set, sample_size, word2vec_pipeline, label_dict):
     sample_sentences = random.sample(test_set, sample_size)
     explainer = LimeTextExplainer()
 

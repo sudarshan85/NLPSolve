@@ -51,11 +51,7 @@ def standardize_text(df, text_field):
     return df
 
 
-def main():
+if __name__ == '__main__':
     questions = get_df('socialmedia_relevant_cols.csv')
     questions = standardize_text(questions, 'text')
     questions.to_pickle('ready_data.pkl')
-
-
-if __name__ == '__main__':
-    main()
